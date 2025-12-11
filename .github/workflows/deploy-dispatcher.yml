@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       target:
-        description: 'Deployment Target? (PROD | STAGE | SECURE)'
+        description: 'Deployment Target? (PROD | STAGE | SECURE | DEMO)'
         required: true
-        default: 'PROD'
+        default: 'DEMO'
 
 jobs:
   deploy_to_prod:
@@ -69,6 +69,28 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           NEXTAUTH_URL: https://eval-secured.iict-heig-vd.in
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          NEXTAUTH_SWITCH_CLIENT_ID: hes-so_open_didac
+          NEXTAUTH_SWITCH_CLIENT_SECRET: ${{ secrets.NEXTAUTH_SWITCH_CLIENT_SECRET }}
+          SSL_FULLCHAIN: ${{ secrets.SSL_FULLCHAIN }}
+          SSL_PRIVKEY: ${{ secrets.SSL_PRIVKEY }}
+          TERMS_OF_SERVICE: ${{ vars.TERMS_OF_SERVICE }}
+
+  deploy_to_demo:
+    environment: deployment_env
+    runs-on: [self-hosted, demo-runner]
+    if: github.event.inputs.target == 'DEMO'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Deploy to DEMO
+        uses: ./.github/actions/deploy
+        with:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          NEXTAUTH_URL: https://eval-demo.iict-heig-vd.in
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           NEXTAUTH_SWITCH_CLIENT_ID: hes-so_open_didac
           NEXTAUTH_SWITCH_CLIENT_SECRET: ${{ secrets.NEXTAUTH_SWITCH_CLIENT_SECRET }}
