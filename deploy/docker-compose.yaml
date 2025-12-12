@@ -1,4 +1,5 @@
 name: eval
+
 services:
   web:
     build:
@@ -29,10 +30,12 @@ services:
     image: nginx
     restart: unless-stopped
     ports:
+      - "80:80"
       - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./ssl:/etc/nginx/ssl
+      - certbot-www:/var/www/certbot
     depends_on:
       - web
     networks:
@@ -49,9 +52,19 @@ services:
     networks:
       - app-network
 
+  # One-shot certbot container (manual run only)
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./ssl:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    networks:
+      - app-network
+
 volumes:
   pgdata:
   assets:
+  certbot-www:
 
 networks:
   app-network:
