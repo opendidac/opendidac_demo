@@ -119,4 +119,5 @@ runs:
       run: |
         cd /home/heiguser/eval/deploy
         docker compose restart nginx
+      shell: bash
 
